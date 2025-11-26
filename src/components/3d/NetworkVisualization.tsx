@@ -255,12 +255,9 @@ function NetworkScene() {
       const fromStartY = ((fromNeurons - 1) * fromSpacing) / 2;
       const toStartY = ((toNeurons - 1) * toSpacing) / 2;
       
-      // Connect each neuron to a few neurons in the next layer
+      // Connect EVERY neuron to EVERY neuron (fully connected)
       for (let i = 0; i < fromNeurons; i++) {
         for (let j = 0; j < toNeurons; j++) {
-          // Limit connections for performance
-          if (Math.random() > 0.5) continue;
-          
           conns.push({
             start: [fromLayer.xPosition, fromStartY - i * fromSpacing, 0],
             end: [toLayer.xPosition, toStartY - j * toSpacing, 0]

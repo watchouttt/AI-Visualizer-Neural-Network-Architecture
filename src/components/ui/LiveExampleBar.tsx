@@ -309,9 +309,23 @@ function ArchitectureAnimation({ architecture, step }: { architecture: string; s
             <text x="185" y="103" fill="gray" fontSize="10">x1</text>
             <text x="10" y="15" fill="gray" fontSize="10">x2</text>
             
-            {/* Decision boundaries from hidden neurons */}
-            <motion.line x1="20" y1="60" x2="140" y2="100" stroke="#a855f7" strokeWidth="2" strokeDasharray="4" animate={{ opacity: step >= 1 ? 1 : 0.3 }} />
-            <motion.line x1="60" y1="20" x2="180" y2="60" stroke="#a855f7" strokeWidth="2" strokeDasharray="4" animate={{ opacity: step >= 1 ? 1 : 0.3 }} />
+            {/* Curved decision boundary - separates XOR classes */}
+            <motion.path 
+              d="M 20 100 Q 100 60 100 20" 
+              stroke="#a855f7" 
+              strokeWidth="3" 
+              fill="none"
+              strokeDasharray="6"
+              animate={{ opacity: step >= 1 ? 1 : 0.3 }} 
+            />
+            <motion.path 
+              d="M 180 20 Q 100 60 100 100" 
+              stroke="#a855f7" 
+              strokeWidth="3" 
+              fill="none"
+              strokeDasharray="6"
+              animate={{ opacity: step >= 1 ? 1 : 0.3 }} 
+            />
             
             <circle cx="30" cy="90" r="8" fill="#ef4444" />
             <circle cx="170" cy="90" r="8" fill="#22c55e" />
@@ -324,7 +338,7 @@ function ArchitectureAnimation({ architecture, step }: { architecture: string; s
             <text x="165" y="33" fill="white" fontSize="8">0</text>
           </svg>
           <div className="text-[9px] text-gray-400 text-center mt-2">
-            Each hidden neuron creates one linear boundary. Combined they create the non-linear XOR separation.
+            Hidden layer creates curved decision boundary - separating XOR classes!
           </div>
         </div>
       </div>
