@@ -212,7 +212,8 @@ function ArchitectureAnimation({ architecture, step }: { architecture: string; s
                 <line x1="10" y1="60" x2="10" y2="10" stroke="white" strokeWidth="1" />
                 <text x="62" y="63" fill="gray" fontSize="8">x1</text>
                 <text x="5" y="8" fill="gray" fontSize="8">x2</text>
-                <line x1="10" y1="22" x2="47" y2="60" stroke="#22c55e" strokeWidth="2" strokeDasharray="4" />
+                {/* Decision boundary: x1 + x2 = 1.5 - diagonal line from upper-left to lower-right */}
+                <line x1="22" y1="0" x2="70" y2="48" stroke="#22c55e" strokeWidth="2" />
                 <circle cx="15" cy="55" r="6" fill="#ef4444" />
                 <circle cx="55" cy="55" r="6" fill="#ef4444" />
                 <circle cx="15" cy="15" r="6" fill="#ef4444" />
@@ -230,7 +231,8 @@ function ArchitectureAnimation({ architecture, step }: { architecture: string; s
                 <line x1="10" y1="60" x2="10" y2="10" stroke="white" strokeWidth="1" />
                 <text x="62" y="63" fill="gray" fontSize="8">x1</text>
                 <text x="5" y="8" fill="gray" fontSize="8">x2</text>
-                <line x1="10" y1="47" x2="22" y2="60" stroke="#22c55e" strokeWidth="2" strokeDasharray="4" />
+                {/* Decision boundary: x1 + x2 = 0.5 - diagonal line from upper-left to lower-right */}
+                <line x1="0" y1="22" x2="48" y2="70" stroke="#22c55e" strokeWidth="2" />
                 <circle cx="15" cy="55" r="6" fill="#ef4444" />
                 <circle cx="55" cy="55" r="6" fill="#22c55e" />
                 <circle cx="15" cy="15" r="6" fill="#22c55e" />
