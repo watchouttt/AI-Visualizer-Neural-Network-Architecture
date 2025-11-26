@@ -15,7 +15,7 @@
   <strong>From Perceptrons to Transformers - Visualize, Learn, and Master Neural Networks</strong>
 </p>
 
-[Live Demo](https://ai-visualizer-neural-network.vercel.app) | [Features](#features) | [Getting Started](#getting-started) | [Documentation](#documentation)
+[Live Demo](https://nolancacheux.github.io/AI-Visualizer-Neural-Network-Architecture/) | [Features](#features) | [Getting Started](#getting-started) | [Documentation](#documentation)
 
 <br />
 
