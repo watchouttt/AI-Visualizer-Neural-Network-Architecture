@@ -4,8 +4,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Base Styles */
-:root {
+/* Base Styles - Dark Theme (default) */
+:root,
+[data-theme="dark"] {
   --void: #0a0a0f;
   --void-light: #12121a;
   --void-lighter: #1a1a25;
@@ -13,6 +14,51 @@
   --neon-purple: #a855f7;
   --neon-pink: #ec4899;
   --neural-glow: #6366f1;
+  --text-primary: #f3f4f6;
+  --text-secondary: #9ca3af;
+  --border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Light Theme */
+[data-theme="light"] {
+  --void: #f8fafc;
+  --void-light: #f1f5f9;
+  --void-lighter: #e2e8f0;
+  --neon-blue: #0284c7;
+  --neon-purple: #7c3aed;
+  --neon-pink: #db2777;
+  --neural-glow: #4f46e5;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --border-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Midnight Theme */
+[data-theme="midnight"] {
+  --void: #0f0a1f;
+  --void-light: #1a1333;
+  --void-lighter: #251c47;
+  --neon-blue: #818cf8;
+  --neon-purple: #c084fc;
+  --neon-pink: #f472b6;
+  --neural-glow: #8b5cf6;
+  --text-primary: #e9d5ff;
+  --text-secondary: #a78bfa;
+  --border-color: rgba(139, 92, 246, 0.2);
+}
+
+/* Ocean Theme */
+[data-theme="ocean"] {
+  --void: #042f2e;
+  --void-light: #064e4a;
+  --void-lighter: #0d6d68;
+  --neon-blue: #22d3d3;
+  --neon-purple: #67e8f9;
+  --neon-pink: #a5f3fc;
+  --neural-glow: #14b8a6;
+  --text-primary: #ccfbf1;
+  --text-secondary: #5eead4;
+  --border-color: rgba(20, 184, 166, 0.2);
 }
 
 * {
@@ -25,9 +71,10 @@ html {
 
 body {
   background: var(--void);
-  color: #e5e7eb;
+  color: var(--text-primary);
   font-family: 'Exo 2', sans-serif;
   overflow: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Custom Scrollbar */
@@ -48,6 +95,23 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(180deg, var(--neon-purple), var(--neon-pink));
+}
+
+/* Scrollbar utilities */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 4px;
+}
+
+.scrollbar-track-transparent::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thumb-white\/10::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.scrollbar-thumb-white\/10::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 /* Grid Background Pattern */
@@ -75,17 +139,19 @@ body {
 
 /* Glass Morphism */
 .glass {
-  background: rgba(18, 18, 26, 0.8);
+  background: color-mix(in srgb, var(--void-light) 80%, transparent);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(99, 102, 241, 0.1);
+  border: 1px solid var(--border-color);
+  transition: background-color 0.3s ease;
 }
 
 .glass-strong {
-  background: rgba(18, 18, 26, 0.95);
+  background: color-mix(in srgb, var(--void-light) 95%, transparent);
   backdrop-filter: blur(30px);
   -webkit-backdrop-filter: blur(30px);
-  border: 1px solid rgba(99, 102, 241, 0.2);
+  border: 1px solid var(--border-color);
+  transition: background-color 0.3s ease;
 }
 
 /* Neural Node Animation */

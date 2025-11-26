@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useCallback, Suspense } from 'react';
+import { useEffect, useCallback, Suspense, useLayoutEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNetworkStore } from '@/store/networkStore';
@@ -279,6 +279,11 @@ export default function NeuralNetworkVisualizer() {
   
   // Register keyboard shortcuts
   useKeyboardShortcuts();
+  
+  // Apply theme to document
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', ui.theme);
+  }, [ui.theme]);
   
   // Calculate main content margins based on panel states
   const mainStyles = {

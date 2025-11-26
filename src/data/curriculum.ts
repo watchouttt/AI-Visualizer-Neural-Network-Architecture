@@ -840,6 +840,38 @@ export const architectureTemplates: ArchitectureTemplate[] = [
       { type: 'dense', params: { units: 256, activation: 'relu' } },
       { type: 'dense', params: { units: 784, activation: 'sigmoid' } }
     ]
+  },
+  {
+    id: 'transformer',
+    name: 'Transformer',
+    description: 'Attention-based architecture for NLP and sequence-to-sequence tasks',
+    difficulty: 'advanced',
+    useCase: 'Machine translation, text generation, BERT, GPT models',
+    layers: [
+      { type: 'input', params: { shape: [512] } },
+      { type: 'embedding', params: { input_dim: 30000, output_dim: 256 } },
+      { type: 'attention', params: { heads: 8, key_dim: 64 } },
+      { type: 'dense', params: { units: 512, activation: 'relu' } },
+      { type: 'attention', params: { heads: 8, key_dim: 64 } },
+      { type: 'dense', params: { units: 512, activation: 'relu' } },
+      { type: 'dense', params: { units: 30000, activation: 'softmax' } }
+    ]
+  },
+  {
+    id: 'gan',
+    name: 'Generative Adversarial Network (GAN)',
+    description: 'Two competing networks for generating realistic synthetic data',
+    difficulty: 'advanced',
+    useCase: 'Image generation, style transfer, data augmentation',
+    layers: [
+      { type: 'input', params: { shape: [100] } },
+      { type: 'dense', params: { units: 256, activation: 'relu' } },
+      { type: 'batchnorm', params: { momentum: 0.8 } },
+      { type: 'dense', params: { units: 512, activation: 'relu' } },
+      { type: 'batchnorm', params: { momentum: 0.8 } },
+      { type: 'dense', params: { units: 1024, activation: 'relu' } },
+      { type: 'dense', params: { units: 784, activation: 'tanh' } }
+    ]
   }
 ];
 

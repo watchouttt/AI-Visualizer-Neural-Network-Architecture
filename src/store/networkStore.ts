@@ -59,10 +59,10 @@ export interface UIState {
   rightPanelTab: 'parameters' | 'code' | 'theory';
   isTourActive: boolean;
   currentTourStep: number;
-  isDarkMode: boolean;
+  theme: 'dark' | 'light' | 'midnight' | 'ocean';
 }
 
-export type ArchitectureType = 'perceptron' | 'mlp' | 'cnn' | 'rnn' | 'autoencoder' | 'custom';
+export type ArchitectureType = 'perceptron' | 'mlp' | 'cnn' | 'rnn' | 'autoencoder' | 'transformer' | 'gan' | 'custom';
 
 // -----------------------------------------------------------------------------
 // STORE STATE INTERFACE
@@ -116,6 +116,7 @@ interface NetworkStore {
   toggleLeftPanel: () => void;
   toggleRightPanel: () => void;
   setRightPanelTab: (tab: 'parameters' | 'code' | 'theory') => void;
+  setTheme: (theme: 'dark' | 'light' | 'midnight' | 'ocean') => void;
   startTour: () => void;
   nextTourStep: () => void;
   previousTourStep: () => void;
@@ -155,6 +156,8 @@ const getDefaultParams = (type: LayerType): Record<string, number | string | boo
       return { units: 128, return_sequences: false };
     case 'embedding':
       return { input_dim: 10000, output_dim: 128 };
+    case 'attention':
+      return { heads: 8, key_dim: 64 };
     case 'input':
       return { shape: [28, 28, 1] };
     case 'output':
@@ -265,7 +268,7 @@ const initialState = {
     rightPanelTab: 'parameters' as const,
     isTourActive: false,
     currentTourStep: 0,
-    isDarkMode: true
+    theme: 'dark' as const
   }
 };
 
@@ -486,6 +489,12 @@ export const useNetworkStore = create<NetworkStore>()(
       }));
     },
     
+    setTheme: (theme: 'dark' | 'light' | 'midnight' | 'ocean') => {
+      set(state => ({
+        ui: { ...state.ui, theme }
+      }));
+    },
+    
     startTour: () => {
       set(state => ({
         ui: { ...state.ui, isTourActive: true, currentTourStep: 0 }
@@ -538,6 +547,8 @@ export const useNetworkStore = create<NetworkStore>()(
             return `    layers.GRU(${layer.params.units}, return_sequences=${layer.params.return_sequences ? 'True' : 'False'})`;
           case 'embedding':
             return `    layers.Embedding(input_dim=${layer.params.input_dim}, output_dim=${layer.params.output_dim})`;
+          case 'attention':
+            return `    layers.MultiHeadAttention(num_heads=${layer.params.heads}, key_dim=${layer.params.key_dim})`;
           default:
             return `    # ${layer.name}`;
         }

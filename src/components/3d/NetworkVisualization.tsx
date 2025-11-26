@@ -223,6 +223,10 @@ function NetworkScene() {
         case 'maxpool2d': color = '#f97316'; break;
         case 'flatten': color = '#22c55e'; break;
         case 'dropout': color = '#ef4444'; break;
+        case 'batchnorm': color = '#eab308'; break;
+        case 'lstm': color = '#ec4899'; break;
+        case 'embedding': color = '#14b8a6'; break;
+        case 'attention': color = '#f59e0b'; break;
         case 'output': color = '#8b5cf6'; break;
       }
       

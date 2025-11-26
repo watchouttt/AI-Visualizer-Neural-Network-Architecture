@@ -44,6 +44,27 @@ const icons = {
       <polyline points="4,16 12,12 20,16" />
     </svg>
   ),
+  transformer: (
+    <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2">
+      <rect x="3" y="3" width="7" height="7" rx="1" />
+      <rect x="14" y="3" width="7" height="7" rx="1" />
+      <rect x="3" y="14" width="7" height="7" rx="1" />
+      <rect x="14" y="14" width="7" height="7" rx="1" />
+      <line x1="10" y1="6.5" x2="14" y2="6.5" />
+      <line x1="10" y1="17.5" x2="14" y2="17.5" />
+      <line x1="6.5" y1="10" x2="6.5" y2="14" />
+      <line x1="17.5" y1="10" x2="17.5" y2="14" />
+    </svg>
+  ),
+  gan: (
+    <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="7" cy="12" r="4" />
+      <circle cx="17" cy="12" r="4" />
+      <path d="M11 12 L13 12" strokeDasharray="1 1" />
+      <path d="M7 8 L7 4 M17 8 L17 4" />
+      <path d="M7 16 L7 20 M17 16 L17 20" />
+    </svg>
+  ),
   custom: (
     <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2">
       <path d="M12 2L2 7l10 5 10-5-10-5z" />
@@ -110,6 +131,19 @@ const layerIcons: Record<string, JSX.Element> = {
       <rect x="12" y="6" width="8" height="12" rx="1" />
       <line x1="8" y1="12" x2="12" y2="12" />
     </svg>
+  ),
+  attention: (
+    <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="12" cy="12" r="3" />
+      <path d="M12 2 L12 5" />
+      <path d="M12 19 L12 22" />
+      <path d="M2 12 L5 12" />
+      <path d="M19 12 L22 12" />
+      <path d="M4.93 4.93 L7.05 7.05" />
+      <path d="M16.95 16.95 L19.07 19.07" />
+      <path d="M4.93 19.07 L7.05 16.95" />
+      <path d="M16.95 7.05 L19.07 4.93" />
+    </svg>
   )
 };
 
@@ -129,6 +163,8 @@ export default function LeftSidebar() {
     { id: 'mlp', name: 'MLP', desc: 'Multi-Layer Perceptron' },
     { id: 'cnn', name: 'CNN', desc: 'Convolutional Network' },
     { id: 'rnn', name: 'RNN/LSTM', desc: 'Recurrent Network' },
+    { id: 'transformer', name: 'Transformer', desc: 'Attention-based NLP' },
+    { id: 'gan', name: 'GAN', desc: 'Generative Adversarial' },
     { id: 'autoencoder', name: 'Autoencoder', desc: 'Encoder-Decoder' },
   ];
   
@@ -140,7 +176,7 @@ export default function LeftSidebar() {
     { type: 'dropout', name: 'Dropout' },
     { type: 'batchnorm', name: 'BatchNorm' },
     { type: 'lstm', name: 'LSTM' },
-    { type: 'embedding', name: 'Embedding' },
+    { type: 'attention', name: 'Attention' },
   ];
 
   return (
@@ -151,7 +187,7 @@ export default function LeftSidebar() {
           animate={{ x: 0, opacity: 1 }}
           exit={{ x: -320, opacity: 0 }}
           transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-          className="fixed left-0 top-0 h-full w-80 glass-strong z-40 flex flex-col"
+          className="fixed left-0 top-0 h-full w-80 glass-strong z-40 flex flex-col overflow-hidden"
         >
           {/* Header */}
           <div className="p-4 border-b border-white/10">
@@ -173,6 +209,8 @@ export default function LeftSidebar() {
             </p>
           </div>
           
+          {/* Scrollable Content */}
+          <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
           {/* Architecture Selection */}
           <div className="p-4 border-b border-white/10">
             <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
@@ -273,8 +311,32 @@ export default function LeftSidebar() {
             </div>
           </div>
           
-          {/* Start Tour Button */}
+          {/* Theme Selector */}
           <div className="p-4 border-t border-white/10">
+            <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
+              Theme
+            </h2>
+            <div className="grid grid-cols-4 gap-2">
+              {[
+                { id: 'dark', color: 'bg-gray-900', label: 'Dark' },
+                { id: 'light', color: 'bg-gray-100', label: 'Light' },
+                { id: 'midnight', color: 'bg-indigo-950', label: 'Midnight' },
+                { id: 'ocean', color: 'bg-cyan-950', label: 'Ocean' }
+              ].map((theme) => (
+                <button
+                  key={theme.id}
+                  onClick={() => useNetworkStore.getState().setTheme(theme.id as any)}
+                  className={`aspect-square rounded-lg ${theme.color} border-2 transition-all
+                    ${ui.theme === theme.id ? 'border-neon-blue scale-110' : 'border-white/10 hover:border-white/30'}`}
+                  title={theme.label}
+                />
+              ))}
+            </div>
+          </div>
+          </div>
+          
+          {/* Start Tour Button - Fixed at bottom */}
+          <div className="p-4 border-t border-white/10 shrink-0">
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
