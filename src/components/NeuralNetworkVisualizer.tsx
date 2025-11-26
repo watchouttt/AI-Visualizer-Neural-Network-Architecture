@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import { useNetworkStore } from '@/store/networkStore';
 import LeftSidebar from './ui/LeftSidebar';
 import RightPanel from './ui/RightPanel';
+import LiveExampleBar from './ui/LiveExampleBar';
 
 // Dynamic import for 3D visualization (no SSR)
 const NetworkVisualization = dynamic(
@@ -34,6 +35,7 @@ function HeaderBar() {
     ui, 
     currentArchitecture, 
     layers, 
+    training,
     toggleLeftPanel, 
     toggleRightPanel,
     getTotalParameters 
@@ -55,7 +57,7 @@ function HeaderBar() {
         )}
         
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-[var(--accent-primary)] flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
             <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
                     d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -71,22 +73,31 @@ function HeaderBar() {
       {/* Center: Network stats */}
       <div className="hidden md:flex items-center gap-6 text-sm">
         <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-[var(--accent-primary)]" />
+          <div className={`w-2 h-2 rounded-full ${training.isTraining ? 'bg-emerald-500 animate-pulse' : 'bg-blue-500'}`} />
           <span className="text-[var(--text-muted)]">Architecture:</span>
           <span className="text-[var(--text-primary)] font-medium capitalize">{currentArchitecture}</span>
         </div>
         <div className="w-px h-4 bg-[var(--border-color)]" />
         <div className="flex items-center gap-2">
           <span className="text-[var(--text-muted)]">Layers:</span>
-          <span className="text-[var(--accent-primary)] font-mono">{layers.length}</span>
+          <span className="text-blue-400 font-mono">{layers.length}</span>
         </div>
         <div className="w-px h-4 bg-[var(--border-color)]" />
         <div className="flex items-center gap-2">
           <span className="text-[var(--text-muted)]">Parameters:</span>
-          <span className="text-[var(--accent-secondary)] font-mono">
+          <span className="text-emerald-400 font-mono">
             {getTotalParameters().toLocaleString()}
           </span>
         </div>
+        {training.isTraining && (
+          <>
+            <div className="w-px h-4 bg-[var(--border-color)]" />
+            <div className="flex items-center gap-2">
+              <span className="text-[var(--text-muted)]">Epoch:</span>
+              <span className="text-amber-400 font-mono">{training.currentEpoch}/{training.totalEpochs}</span>
+            </div>
+          </>
+        )}
       </div>
       
       {/* Right: Toggle right panel */}
@@ -126,11 +137,14 @@ function useKeyboardShortcuts() {
     toggleDataFlow,
     toggleWeights,
     toggleGradients,
+    startTraining,
+    stopTraining,
+    training
   } = useNetworkStore();
   
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     // Ignore if typing in an input
-    if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+    if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLSelectElement) {
       return;
     }
     
@@ -166,8 +180,16 @@ function useKeyboardShortcuts() {
           toggleGradients();
         }
         break;
+      case ' ':
+        e.preventDefault();
+        if (training.isTraining) {
+          stopTraining();
+        } else {
+          startTraining();
+        }
+        break;
     }
-  }, [toggleLeftPanel, toggleRightPanel, toggleDataFlow, toggleWeights, toggleGradients]);
+  }, [toggleLeftPanel, toggleRightPanel, toggleDataFlow, toggleWeights, toggleGradients, startTraining, stopTraining, training.isTraining]);
   
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
@@ -186,6 +208,7 @@ export default function NeuralNetworkVisualizer() {
   const mainStyles = {
     marginLeft: ui.leftPanelOpen ? '320px' : '0',
     marginRight: ui.rightPanelOpen ? '384px' : '0',
+    marginBottom: '120px', // Space for live example bar
     transition: 'margin 0.3s ease'
   };
   
@@ -210,14 +233,17 @@ export default function NeuralNetworkVisualizer() {
       {/* Right Panel */}
       <RightPanel />
       
-      {/* Footer hints */}
-      <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-20">
-        <div className="flex items-center gap-4 text-xs text-[var(--text-muted)]">
+      {/* Live Example Bar (Bottom) */}
+      <LiveExampleBar />
+      
+      {/* Keyboard shortcuts hint */}
+      <div className="fixed bottom-32 left-1/2 transform -translate-x-1/2 z-20 pointer-events-none">
+        <div className="flex items-center gap-4 text-xs text-[var(--text-muted)] bg-[var(--bg-secondary)]/80 px-3 py-1.5 rounded-full">
+          <span><kbd className="px-1.5 py-0.5 bg-[var(--bg-tertiary)] rounded text-[var(--text-secondary)]">Space</kbd> Train</span>
+          <span className="w-px h-3 bg-[var(--border-color)]" />
           <span>Drag to rotate</span>
           <span className="w-px h-3 bg-[var(--border-color)]" />
           <span>Scroll to zoom</span>
-          <span className="w-px h-3 bg-[var(--border-color)]" />
-          <span>Click layers to select</span>
         </div>
       </div>
     </div>

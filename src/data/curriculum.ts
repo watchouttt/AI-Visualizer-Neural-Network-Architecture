@@ -777,7 +777,7 @@ export const architectureTemplates: ArchitectureTemplate[] = [
     difficulty: 'beginner',
     useCase: 'Binary classification of linearly separable data (AND, OR gates)',
     layers: [
-      { type: 'input', params: { shape: [2] } },
+      { type: 'input', params: { shape: [4] } },
       { type: 'dense', params: { units: 1, activation: 'sigmoid' } }
     ]
   },
@@ -788,10 +788,10 @@ export const architectureTemplates: ArchitectureTemplate[] = [
     difficulty: 'beginner',
     useCase: 'Classification and regression tasks, XOR problem, tabular data',
     layers: [
-      { type: 'input', params: { shape: [10] } },
-      { type: 'dense', params: { units: 64, activation: 'relu' } },
-      { type: 'dense', params: { units: 32, activation: 'relu' } },
-      { type: 'dense', params: { units: 1, activation: 'sigmoid' } }
+      { type: 'input', params: { shape: [4] } },
+      { type: 'dense', params: { units: 8, activation: 'relu' } },
+      { type: 'dense', params: { units: 4, activation: 'relu' } },
+      { type: 'dense', params: { units: 2, activation: 'softmax' } }
     ]
   },
   {

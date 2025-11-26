@@ -1,7 +1,8 @@
 'use client';
 
-import { motion, AnimatePresence } from 'framer-motion';
-import { useNetworkStore, ArchitectureType } from '@/store/networkStore';
+import { useState } from 'react';
+import { motion, AnimatePresence, Reorder } from 'framer-motion';
+import { useNetworkStore, ArchitectureType, NetworkLayer } from '@/store/networkStore';
 
 // Icons
 const icons: Record<string, JSX.Element> = {
@@ -132,8 +133,102 @@ const layerIcons: Record<string, JSX.Element> = {
       <path d="M2 12 L5 12" />
       <path d="M19 12 L22 12" />
     </svg>
+  ),
+  input: (
+    <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2">
+      <rect x="4" y="4" width="16" height="16" rx="2" />
+      <path d="M9 12 L15 12 M12 9 L15 12 L12 15" />
+    </svg>
+  ),
+  embedding: (
+    <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="6" cy="12" r="2" />
+      <rect x="12" y="6" width="8" height="12" rx="1" />
+      <line x1="8" y1="12" x2="12" y2="12" />
+    </svg>
   )
 };
+
+// Draggable Layer Item
+function DraggableLayerItem({ 
+  layer, 
+  index, 
+  onRemove,
+  onMoveUp,
+  onMoveDown,
+  isFirst,
+  isLast
+}: { 
+  layer: NetworkLayer; 
+  index: number;
+  onRemove: () => void;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
+  isFirst: boolean;
+  isLast: boolean;
+}) {
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, x: -20 }}
+      className="layer-card p-3 rounded-lg bg-[var(--bg-secondary)] flex items-center justify-between group border border-[var(--border-color)] hover:border-[var(--border-hover)]"
+    >
+      <div className="flex items-center gap-3">
+        <span className="text-xs font-mono text-[var(--text-muted)] w-5">{index}</span>
+        <div className="text-blue-400">
+          {layerIcons[layer.type] || layerIcons.dense}
+        </div>
+        <div>
+          <div className="text-sm font-medium text-[var(--text-primary)]">{layer.name}</div>
+          <div className="text-xs text-[var(--text-muted)]">
+            {layer.type === 'dense' && `${layer.params.units} units`}
+            {layer.type === 'conv2d' && `${layer.params.filters} filters`}
+            {layer.type === 'dropout' && `${((layer.params.rate as number) * 100).toFixed(0)}%`}
+            {layer.type === 'input' && 'Input Layer'}
+            {layer.type === 'embedding' && 'Embedding'}
+            {layer.type === 'attention' && `${layer.params.heads} heads`}
+          </div>
+        </div>
+      </div>
+      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        {/* Move Up */}
+        <button
+          onClick={onMoveUp}
+          disabled={isFirst}
+          className="p-1 rounded hover:bg-[var(--bg-tertiary)] text-[var(--text-muted)] hover:text-[var(--text-primary)] disabled:opacity-30 disabled:cursor-not-allowed"
+          title="Move up"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+          </svg>
+        </button>
+        {/* Move Down */}
+        <button
+          onClick={onMoveDown}
+          disabled={isLast}
+          className="p-1 rounded hover:bg-[var(--bg-tertiary)] text-[var(--text-muted)] hover:text-[var(--text-primary)] disabled:opacity-30 disabled:cursor-not-allowed"
+          title="Move down"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        {/* Remove */}
+        <button
+          onClick={onRemove}
+          className="p-1 rounded hover:bg-red-500/20 text-[var(--text-muted)] hover:text-red-400"
+          title="Remove layer"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    </motion.div>
+  );
+}
 
 export default function LeftSidebar() {
   const { 
@@ -143,6 +238,7 @@ export default function LeftSidebar() {
     setArchitecture, 
     addLayer,
     removeLayer,
+    reorderLayers,
     toggleLeftPanel 
   } = useNetworkStore();
   
@@ -166,6 +262,13 @@ export default function LeftSidebar() {
     { type: 'lstm', name: 'LSTM' },
     { type: 'attention', name: 'Attention' },
   ];
+
+  const handleMoveLayer = (fromIndex: number, direction: 'up' | 'down') => {
+    const toIndex = direction === 'up' ? fromIndex - 1 : fromIndex + 1;
+    if (toIndex >= 0 && toIndex < layers.length) {
+      reorderLayers(fromIndex, toIndex);
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -212,24 +315,26 @@ export default function LeftSidebar() {
                     onClick={() => setArchitecture(arch.id)}
                     className={`w-full flex items-center gap-3 p-3 rounded-lg transition-all ${
                       currentArchitecture === arch.id
-                        ? 'bg-[var(--accent-primary)] bg-opacity-10 border border-[var(--accent-primary)] border-opacity-30'
+                        ? 'bg-blue-600 text-white'
                         : 'hover:bg-[var(--bg-tertiary)] border border-transparent'
                     }`}
                   >
                     <div className={`p-2 rounded-lg ${
                       currentArchitecture === arch.id 
-                        ? 'bg-[var(--accent-primary)] bg-opacity-20 text-[var(--accent-primary)]' 
+                        ? 'bg-white/20 text-white' 
                         : 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)]'
                     }`}>
                       {icons[arch.id] || icons.custom}
                     </div>
                     <div className="text-left">
                       <div className={`font-medium text-sm ${
-                        currentArchitecture === arch.id ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'
+                        currentArchitecture === arch.id ? 'text-white' : 'text-[var(--text-primary)]'
                       }`}>
                         {arch.name}
                       </div>
-                      <div className="text-xs text-[var(--text-muted)]">{arch.desc}</div>
+                      <div className={`text-xs ${
+                        currentArchitecture === arch.id ? 'text-white/70' : 'text-[var(--text-muted)]'
+                      }`}>{arch.desc}</div>
                     </div>
                   </motion.button>
                 ))}
@@ -248,58 +353,42 @@ export default function LeftSidebar() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => addLayer(layer.type as any)}
-                    className="flex items-center gap-2 p-2 rounded-lg bg-[var(--bg-tertiary)] 
+                    className="flex items-center gap-2 p-2.5 rounded-lg bg-[var(--bg-tertiary)] 
                              hover:bg-[var(--bg-elevated)] border border-[var(--border-color)]
-                             hover:border-[var(--border-hover)] transition-all text-sm"
+                             hover:border-blue-500/50 transition-all text-sm"
                   >
-                    <span className="text-[var(--accent-primary)]">
+                    <span className="text-blue-400">
                       {layerIcons[layer.type] || layerIcons.dense}
                     </span>
-                    <span className="text-[var(--text-secondary)]">{layer.name}</span>
+                    <span className="text-[var(--text-primary)]">{layer.name}</span>
                   </motion.button>
                 ))}
               </div>
             </div>
             
-            {/* Current Network Layers */}
+            {/* Current Network Layers with Reorder Controls */}
             <div className="p-4">
-              <h2 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3">
-                Network Layers ({layers.length})
-              </h2>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">
+                  Network Layers ({layers.length})
+                </h2>
+                <span className="text-xs text-[var(--text-muted)]">↑↓ to reorder</span>
+              </div>
               <div className="space-y-2">
-                {layers.map((layer, index) => (
-                  <motion.div
-                    key={layer.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    className="layer-card p-3 rounded-lg bg-[var(--bg-secondary)] flex items-center justify-between group"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-xs font-mono text-[var(--text-muted)] w-4">{index}</span>
-                      <div className="text-[var(--accent-primary)]">
-                        {layerIcons[layer.type] || layerIcons.dense}
-                      </div>
-                      <div>
-                        <div className="text-sm font-medium text-[var(--text-primary)]">{layer.name}</div>
-                        <div className="text-xs text-[var(--text-muted)]">
-                          {layer.type === 'dense' && `${layer.params.units} units`}
-                          {layer.type === 'conv2d' && `${layer.params.filters} filters`}
-                          {layer.type === 'dropout' && `${((layer.params.rate as number) * 100).toFixed(0)}%`}
-                        </div>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => removeLayer(layer.id)}
-                      className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-[var(--accent-danger)] hover:bg-opacity-20
-                               text-[var(--text-muted)] hover:text-[var(--accent-danger)] transition-all"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </motion.div>
-                ))}
+                <AnimatePresence mode="popLayout">
+                  {layers.map((layer, index) => (
+                    <DraggableLayerItem
+                      key={layer.id}
+                      layer={layer}
+                      index={index}
+                      onRemove={() => removeLayer(layer.id)}
+                      onMoveUp={() => handleMoveLayer(index, 'up')}
+                      onMoveDown={() => handleMoveLayer(index, 'down')}
+                      isFirst={index === 0}
+                      isLast={index === layers.length - 1}
+                    />
+                  ))}
+                </AnimatePresence>
               </div>
             </div>
           </div>

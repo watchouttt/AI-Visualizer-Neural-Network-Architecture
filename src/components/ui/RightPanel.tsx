@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNetworkStore, ArchitectureType } from '@/store/networkStore';
 import CodeBlock from './CodeBlock';
@@ -14,7 +14,6 @@ const architectureTheory: Record<ArchitectureType | 'custom', {
   description: string;
   keyPoints: string[];
   formula?: { latex: string; description: string };
-  example: { type: 'mnist' | 'sentence' | 'xor' | 'image' | 'sequence' | 'noise'; description: string };
   useCases: string[];
 }> = {
   perceptron: {
@@ -30,7 +29,6 @@ const architectureTheory: Record<ArchitectureType | 'custom', {
       latex: 'y = \\sigma(\\sum_{i=1}^{n} w_i x_i + b)',
       description: 'Output y is activation σ applied to weighted sum of inputs plus bias'
     },
-    example: { type: 'xor', description: 'XOR Problem: Shows why perceptrons need multiple layers' },
     useCases: ['Binary classification', 'Linear decision boundaries', 'Simple AND/OR gates']
   },
   mlp: {
@@ -46,7 +44,6 @@ const architectureTheory: Record<ArchitectureType | 'custom', {
       latex: 'a^{[l]} = g(W^{[l]} a^{[l-1]} + b^{[l]})',
       description: 'Each layer transforms previous layer output through weights, bias, and activation'
     },
-    example: { type: 'xor', description: 'XOR Classification: Watch how hidden layers solve non-linear problems' },
     useCases: ['Classification', 'Regression', 'Tabular data', 'Feature learning']
   },
   cnn: {
@@ -62,7 +59,6 @@ const architectureTheory: Record<ArchitectureType | 'custom', {
       latex: '(I * K)[i,j] = \\sum_m \\sum_n I[i+m, j+n] \\cdot K[m,n]',
       description: 'Convolution: kernel K slides over input I, computing element-wise products'
     },
-    example: { type: 'mnist', description: 'MNIST Digit Recognition: Watch a handwritten digit flow through the network' },
     useCases: ['Image classification', 'Object detection', 'Medical imaging', 'Video analysis']
   },
   rnn: {
@@ -78,7 +74,6 @@ const architectureTheory: Record<ArchitectureType | 'custom', {
       latex: 'h_t = \\tanh(W_{hh} h_{t-1} + W_{xh} x_t + b_h)',
       description: 'Hidden state h at time t depends on previous state and current input'
     },
-    example: { type: 'sequence', description: 'Sequence Processing: Watch how hidden state evolves over time' },
     useCases: ['Text classification', 'Time series prediction', 'Speech recognition', 'Machine translation']
   },
   transformer: {
@@ -94,7 +89,6 @@ const architectureTheory: Record<ArchitectureType | 'custom', {
       latex: '\\text{Attention}(Q,K,V) = \\text{softmax}\\left(\\frac{QK^T}{\\sqrt{d_k}}\\right)V',
       description: 'Scaled dot-product attention: Query-Key similarity weighted sum of Values'
     },
-    example: { type: 'sentence', description: 'Sentence Processing: See how attention connects related words' },
     useCases: ['Machine translation', 'Text generation (GPT)', 'Question answering', 'BERT embeddings']
   },
   gan: {
@@ -110,7 +104,6 @@ const architectureTheory: Record<ArchitectureType | 'custom', {
       latex: '\\min_G \\max_D \\mathbb{E}[\\log D(x)] + \\mathbb{E}[\\log(1-D(G(z)))]',
       description: 'GAN objective: Generator fools Discriminator, Discriminator catches fakes'
     },
-    example: { type: 'noise', description: 'Image Generation: Watch random noise transform into images' },
     useCases: ['Image generation', 'Style transfer', 'Data augmentation', 'Super-resolution']
   },
   autoencoder: {
@@ -126,14 +119,12 @@ const architectureTheory: Record<ArchitectureType | 'custom', {
       latex: 'L = ||x - \\hat{x}||^2 = ||x - D(E(x))||^2',
       description: 'Reconstruction loss: minimize difference between input x and reconstruction'
     },
-    example: { type: 'image', description: 'Image Compression: See input compressed and reconstructed' },
     useCases: ['Dimensionality reduction', 'Denoising', 'Anomaly detection', 'Feature extraction']
   },
   custom: {
     title: 'Custom Architecture',
     description: 'Build your own neural network architecture by adding and configuring layers.',
     keyPoints: ['Fully customizable', 'Experiment with different layer combinations'],
-    example: { type: 'xor', description: 'Custom network visualization' },
     useCases: ['Experimentation', 'Learning', 'Prototyping']
   }
 };
@@ -157,12 +148,40 @@ export default function RightPanel() {
     startTraining,
     stopTraining,
     resetTraining,
+    updateTrainingProgress,
     getGeneratedCode
   } = useNetworkStore();
   
   const selectedLayer = useMemo(() => {
     return layers.find(l => l.id === visualization.selectedLayerId);
   }, [layers, visualization.selectedLayerId]);
+  
+  // Training simulation effect
+  useEffect(() => {
+    if (!training.isTraining) return;
+    
+    const interval = setInterval(() => {
+      const newEpoch = training.currentEpoch + 1;
+      if (newEpoch > training.totalEpochs) {
+        stopTraining();
+        return;
+      }
+      
+      // Simulate training progress with realistic curves
+      const progress = newEpoch / training.totalEpochs;
+      const baseLoss = 2.5 * Math.exp(-3 * progress) + 0.1;
+      const noise = (Math.random() - 0.5) * 0.1;
+      const loss = Math.max(0.01, baseLoss + noise);
+      
+      const baseAcc = 1 - Math.exp(-4 * progress);
+      const accNoise = (Math.random() - 0.5) * 0.05;
+      const accuracy = Math.min(0.99, Math.max(0, baseAcc + accNoise));
+      
+      updateTrainingProgress(newEpoch, loss, accuracy);
+    }, 100 / visualization.animationSpeed);
+    
+    return () => clearInterval(interval);
+  }, [training.isTraining, training.currentEpoch, training.totalEpochs, visualization.animationSpeed, stopTraining, updateTrainingProgress]);
   
   const tabs: { id: TabType; label: string; icon: JSX.Element }[] = [
     {
@@ -224,15 +243,15 @@ export default function RightPanel() {
             </div>
           </div>
           
-          {/* Tabs */}
-          <div className="flex border-b border-[var(--border-color)]">
+          {/* Tabs - FIXED: proper background colors */}
+          <div className="flex border-b border-[var(--border-color)] bg-[var(--bg-secondary)]">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setRightPanelTab(tab.id)}
                 className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 text-sm font-medium
                           transition-all ${ui.rightPanelTab === tab.id 
-                            ? 'text-[var(--accent-primary)] border-b-2 border-[var(--accent-primary)] bg-[var(--accent-primary)] bg-opacity-5' 
+                            ? 'text-white bg-[var(--accent-primary)] rounded-t-lg' 
                             : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)]'
                           }`}
               >
@@ -310,10 +329,8 @@ function ParametersTab({
           {!training.isTraining ? (
             <button
               onClick={startTraining}
-              className="flex-1 py-2 px-4 rounded-lg bg-[var(--accent-secondary)] bg-opacity-20 
-                       border border-[var(--accent-secondary)] border-opacity-30
-                       text-[var(--accent-secondary)] hover:bg-opacity-30 transition-all 
-                       flex items-center justify-center gap-2"
+              className="flex-1 py-2.5 px-4 rounded-lg bg-emerald-600 hover:bg-emerald-700
+                       text-white font-medium transition-all flex items-center justify-center gap-2"
             >
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M8 5v14l11-7z" />
@@ -323,10 +340,8 @@ function ParametersTab({
           ) : (
             <button
               onClick={stopTraining}
-              className="flex-1 py-2 px-4 rounded-lg bg-[var(--accent-danger)] bg-opacity-20 
-                       border border-[var(--accent-danger)] border-opacity-30
-                       text-[var(--accent-danger)] hover:bg-opacity-30 transition-all 
-                       flex items-center justify-center gap-2"
+              className="flex-1 py-2.5 px-4 rounded-lg bg-red-600 hover:bg-red-700
+                       text-white font-medium transition-all flex items-center justify-center gap-2"
             >
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                 <rect x="6" y="6" width="12" height="12" />
@@ -336,8 +351,8 @@ function ParametersTab({
           )}
           <button
             onClick={resetTraining}
-            className="py-2 px-4 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-color)]
-                     text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)] transition-all"
+            className="py-2.5 px-4 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-color)]
+                     text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] transition-all"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
@@ -347,28 +362,43 @@ function ParametersTab({
         </div>
         
         {/* Training Progress */}
-        {training.isTraining && (
-          <div className="space-y-2 p-3 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-color)]">
-            <div className="flex justify-between text-sm">
-              <span className="text-[var(--text-secondary)]">Epoch</span>
-              <span className="text-[var(--text-primary)] font-mono">{training.currentEpoch} / {training.totalEpochs}</span>
+        <div className="space-y-3 p-3 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-color)]">
+          <div className="flex justify-between text-sm">
+            <span className="text-[var(--text-secondary)]">Epoch</span>
+            <span className="text-[var(--text-primary)] font-mono">{training.currentEpoch} / {training.totalEpochs}</span>
+          </div>
+          <div className="w-full bg-[var(--bg-tertiary)] rounded-full h-2 overflow-hidden">
+            <motion.div 
+              className="h-full bg-gradient-to-r from-blue-500 to-emerald-500"
+              initial={{ width: 0 }}
+              animate={{ width: `${(training.currentEpoch / training.totalEpochs) * 100}%` }}
+              transition={{ duration: 0.1 }}
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="p-2 rounded bg-[var(--bg-tertiary)]">
+              <div className="text-[var(--text-muted)] text-xs">Loss</div>
+              <div className="text-amber-400 font-mono text-lg">{training.loss.toFixed(4)}</div>
             </div>
-            <div className="progress-bar h-2">
-              <div 
-                className="progress-bar-fill"
-                style={{ width: `${(training.currentEpoch / training.totalEpochs) * 100}%` }}
-              />
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-[var(--text-secondary)]">
-                Loss: <span className="text-[var(--accent-warning)]">{training.loss.toFixed(4)}</span>
-              </span>
-              <span className="text-[var(--text-secondary)]">
-                Acc: <span className="text-[var(--accent-secondary)]">{(training.accuracy * 100).toFixed(1)}%</span>
-              </span>
+            <div className="p-2 rounded bg-[var(--bg-tertiary)]">
+              <div className="text-[var(--text-muted)] text-xs">Accuracy</div>
+              <div className="text-emerald-400 font-mono text-lg">{(training.accuracy * 100).toFixed(1)}%</div>
             </div>
           </div>
-        )}
+          
+          {/* Mini loss chart */}
+          {training.lossHistory.length > 1 && (
+            <div className="h-16 flex items-end gap-px">
+              {training.lossHistory.slice(-50).map((loss: number, i: number) => (
+                <div 
+                  key={i}
+                  className="flex-1 bg-amber-500 rounded-t opacity-70"
+                  style={{ height: `${Math.min(100, (loss / 2.5) * 100)}%` }}
+                />
+              ))}
+            </div>
+          )}
+        </div>
       </section>
       
       {/* Hyperparameters */}
@@ -379,7 +409,7 @@ function ParametersTab({
         <div className="space-y-4">
           <div>
             <div className="flex justify-between text-sm mb-1">
-              <label className="text-[var(--text-secondary)]">Learning Rate</label>
+              <span className="text-[var(--text-secondary)]">Learning Rate</span>
               <span className="font-mono text-[var(--accent-primary)]">{config.learningRate}</span>
             </div>
             <input
@@ -388,13 +418,13 @@ function ParametersTab({
               max="0.1"
               step="0.0001"
               value={config.learningRate}
-              onChange={(e) => updateConfig({ learningRate: parseFloat(e.target.value) })}
+              onChange={(e) => updateConfig({ learningRate: Number.parseFloat(e.target.value) })}
             />
           </div>
           
           <div>
             <div className="flex justify-between text-sm mb-1">
-              <label className="text-[var(--text-secondary)]">Batch Size</label>
+              <span className="text-[var(--text-secondary)]">Batch Size</span>
               <span className="font-mono text-[var(--accent-primary)]">{config.batchSize}</span>
             </div>
             <input
@@ -403,13 +433,13 @@ function ParametersTab({
               max="256"
               step="8"
               value={config.batchSize}
-              onChange={(e) => updateConfig({ batchSize: parseInt(e.target.value) })}
+              onChange={(e) => updateConfig({ batchSize: Number.parseInt(e.target.value) })}
             />
           </div>
           
           <div>
             <div className="flex justify-between text-sm mb-1">
-              <label className="text-[var(--text-secondary)]">Epochs</label>
+              <span className="text-[var(--text-secondary)]">Epochs</span>
               <span className="font-mono text-[var(--accent-primary)]">{config.epochs}</span>
             </div>
             <input
@@ -418,16 +448,16 @@ function ParametersTab({
               max="500"
               step="10"
               value={config.epochs}
-              onChange={(e) => updateConfig({ epochs: parseInt(e.target.value) })}
+              onChange={(e) => updateConfig({ epochs: Number.parseInt(e.target.value) })}
             />
           </div>
           
           <div>
-            <label className="text-sm text-[var(--text-secondary)] block mb-2">Optimizer</label>
+            <span className="text-sm text-[var(--text-secondary)] block mb-2">Optimizer</span>
             <select
               value={config.optimizer}
               onChange={(e) => updateConfig({ optimizer: e.target.value })}
-              className="w-full"
+              className="w-full bg-[var(--bg-tertiary)] border border-[var(--border-color)] rounded-lg p-2.5 text-[var(--text-primary)]"
             >
               <option value="adam">Adam</option>
               <option value="sgd">SGD</option>
@@ -436,11 +466,11 @@ function ParametersTab({
           </div>
           
           <div>
-            <label className="text-sm text-[var(--text-secondary)] block mb-2">Loss Function</label>
+            <span className="text-sm text-[var(--text-secondary)] block mb-2">Loss Function</span>
             <select
               value={config.lossFunction}
               onChange={(e) => updateConfig({ lossFunction: e.target.value })}
-              className="w-full"
+              className="w-full bg-[var(--bg-tertiary)] border border-[var(--border-color)] rounded-lg p-2.5 text-[var(--text-primary)]"
             >
               <option value="categorical_crossentropy">Categorical Cross-Entropy</option>
               <option value="binary_crossentropy">Binary Cross-Entropy</option>
@@ -456,39 +486,39 @@ function ParametersTab({
           Visualization
         </h3>
         <div className="space-y-3">
-          <label className="flex items-center gap-3 cursor-pointer">
+          <label className="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-[var(--bg-tertiary)]">
             <input
               type="checkbox"
               checked={visualization.showDataFlow}
               onChange={toggleDataFlow}
-              className="w-4 h-4 rounded"
+              className="w-4 h-4 rounded accent-[var(--accent-primary)]"
             />
-            <span className="text-[var(--text-secondary)] text-sm">Show Data Flow</span>
+            <span className="text-[var(--text-primary)] text-sm">Show Data Flow</span>
           </label>
           
-          <label className="flex items-center gap-3 cursor-pointer">
+          <label className="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-[var(--bg-tertiary)]">
             <input
               type="checkbox"
               checked={visualization.showWeights}
               onChange={toggleWeights}
-              className="w-4 h-4 rounded"
+              className="w-4 h-4 rounded accent-[var(--accent-primary)]"
             />
-            <span className="text-[var(--text-secondary)] text-sm">Show Weights</span>
+            <span className="text-[var(--text-primary)] text-sm">Show Weights</span>
           </label>
           
-          <label className="flex items-center gap-3 cursor-pointer">
+          <label className="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-[var(--bg-tertiary)]">
             <input
               type="checkbox"
               checked={visualization.showGradients}
               onChange={toggleGradients}
-              className="w-4 h-4 rounded"
+              className="w-4 h-4 rounded accent-[var(--accent-primary)]"
             />
-            <span className="text-[var(--text-secondary)] text-sm">Show Gradients</span>
+            <span className="text-[var(--text-primary)] text-sm">Show Gradients</span>
           </label>
           
           <div>
             <div className="flex justify-between text-sm mb-1">
-              <label className="text-[var(--text-secondary)]">Animation Speed</label>
+              <span className="text-[var(--text-secondary)]">Animation Speed</span>
               <span className="font-mono text-[var(--accent-primary)]">{visualization.animationSpeed}x</span>
             </div>
             <input
@@ -497,7 +527,7 @@ function ParametersTab({
               max="3"
               step="0.1"
               value={visualization.animationSpeed}
-              onChange={(e) => setAnimationSpeed(parseFloat(e.target.value))}
+              onChange={(e) => setAnimationSpeed(Number.parseFloat(e.target.value))}
             />
           </div>
         </div>
@@ -509,12 +539,12 @@ function ParametersTab({
           <h3 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-3">
             Layer: {selectedLayer.name}
           </h3>
-          <div className="space-y-3 p-3 rounded-lg bg-[var(--bg-secondary)] border border-[var(--accent-primary)] border-opacity-20">
+          <div className="space-y-3 p-3 rounded-lg bg-[var(--bg-secondary)] border border-blue-500/30">
             {selectedLayer.type === 'dense' && (
               <>
                 <div>
                   <div className="flex justify-between text-sm mb-1">
-                    <label className="text-[var(--text-secondary)]">Units</label>
+                    <span className="text-[var(--text-secondary)]">Units</span>
                     <span className="font-mono text-[var(--accent-primary)]">{selectedLayer.params.units}</span>
                   </div>
                   <input
@@ -523,15 +553,15 @@ function ParametersTab({
                     max="512"
                     step="8"
                     value={selectedLayer.params.units as number}
-                    onChange={(e) => updateLayerParams(selectedLayer.id, { units: parseInt(e.target.value) })}
+                    onChange={(e) => updateLayerParams(selectedLayer.id, { units: Number.parseInt(e.target.value) })}
                   />
                 </div>
                 <div>
-                  <label className="text-sm text-[var(--text-secondary)] block mb-2">Activation</label>
+                  <span className="text-sm text-[var(--text-secondary)] block mb-2">Activation</span>
                   <select
                     value={selectedLayer.params.activation as string}
                     onChange={(e) => updateLayerParams(selectedLayer.id, { activation: e.target.value })}
-                    className="w-full"
+                    className="w-full bg-[var(--bg-tertiary)] border border-[var(--border-color)] rounded-lg p-2 text-[var(--text-primary)]"
                   >
                     <option value="relu">ReLU</option>
                     <option value="sigmoid">Sigmoid</option>
@@ -548,7 +578,7 @@ function ParametersTab({
               <>
                 <div>
                   <div className="flex justify-between text-sm mb-1">
-                    <label className="text-[var(--text-secondary)]">Filters</label>
+                    <span className="text-[var(--text-secondary)]">Filters</span>
                     <span className="font-mono text-[var(--accent-primary)]">{selectedLayer.params.filters}</span>
                   </div>
                   <input
@@ -557,12 +587,12 @@ function ParametersTab({
                     max="256"
                     step="8"
                     value={selectedLayer.params.filters as number}
-                    onChange={(e) => updateLayerParams(selectedLayer.id, { filters: parseInt(e.target.value) })}
+                    onChange={(e) => updateLayerParams(selectedLayer.id, { filters: Number.parseInt(e.target.value) })}
                   />
                 </div>
                 <div>
                   <div className="flex justify-between text-sm mb-1">
-                    <label className="text-[var(--text-secondary)]">Kernel Size</label>
+                    <span className="text-[var(--text-secondary)]">Kernel Size</span>
                     <span className="font-mono text-[var(--accent-primary)]">{selectedLayer.params.kernel_size}×{selectedLayer.params.kernel_size}</span>
                   </div>
                   <input
@@ -571,7 +601,7 @@ function ParametersTab({
                     max="7"
                     step="2"
                     value={selectedLayer.params.kernel_size as number}
-                    onChange={(e) => updateLayerParams(selectedLayer.id, { kernel_size: parseInt(e.target.value) })}
+                    onChange={(e) => updateLayerParams(selectedLayer.id, { kernel_size: Number.parseInt(e.target.value) })}
                   />
                 </div>
               </>
@@ -580,7 +610,7 @@ function ParametersTab({
             {selectedLayer.type === 'dropout' && (
               <div>
                 <div className="flex justify-between text-sm mb-1">
-                  <label className="text-[var(--text-secondary)]">Dropout Rate</label>
+                  <span className="text-[var(--text-secondary)]">Dropout Rate</span>
                   <span className="font-mono text-[var(--accent-primary)]">{((selectedLayer.params.rate as number) * 100).toFixed(0)}%</span>
                 </div>
                 <input
@@ -589,7 +619,7 @@ function ParametersTab({
                   max="0.9"
                   step="0.1"
                   value={selectedLayer.params.rate as number}
-                  onChange={(e) => updateLayerParams(selectedLayer.id, { rate: parseFloat(e.target.value) })}
+                  onChange={(e) => updateLayerParams(selectedLayer.id, { rate: Number.parseFloat(e.target.value) })}
                 />
               </div>
             )}
@@ -603,6 +633,13 @@ function ParametersTab({
 // Code Tab Component
 function CodeTab({ getGeneratedCode }: { getGeneratedCode: () => string }) {
   const code = getGeneratedCode();
+  const [copied, setCopied] = useState(false);
+  
+  const handleCopy = () => {
+    navigator.clipboard.writeText(code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
   
   return (
     <motion.div
@@ -616,21 +653,35 @@ function CodeTab({ getGeneratedCode }: { getGeneratedCode: () => string }) {
           TensorFlow/Keras Code
         </h3>
         <button
-          onClick={() => navigator.clipboard.writeText(code)}
-          className="text-xs px-3 py-1 rounded bg-[var(--bg-tertiary)] hover:bg-[var(--bg-elevated)] 
-                   text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all flex items-center gap-1"
+          onClick={handleCopy}
+          className={`text-xs px-3 py-1.5 rounded font-medium transition-all flex items-center gap-1 ${
+            copied 
+              ? 'bg-emerald-600 text-white' 
+              : 'bg-[var(--bg-tertiary)] hover:bg-[var(--bg-elevated)] text-[var(--text-primary)]'
+          }`}
         >
-          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                  d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-          </svg>
-          Copy
+          {copied ? (
+            <>
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              Copied!
+            </>
+          ) : (
+            <>
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                      d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+              Copy
+            </>
+          )}
         </button>
       </div>
       <CodeBlock code={code} language="python" />
       
-      <div className="mt-4 p-3 rounded-lg bg-[var(--accent-primary)] bg-opacity-10 border border-[var(--accent-primary)] border-opacity-20">
-        <p className="text-sm text-[var(--accent-primary)]">
+      <div className="mt-4 p-3 rounded-lg bg-blue-500/10 border border-blue-500/30">
+        <p className="text-sm text-blue-400">
           💡 This code updates in real-time as you modify the network architecture.
         </p>
       </div>
@@ -641,18 +692,6 @@ function CodeTab({ getGeneratedCode }: { getGeneratedCode: () => string }) {
 // Theory Tab Component - Now architecture-specific
 function TheoryTab({ architecture }: { architecture: ArchitectureType }) {
   const theory = architectureTheory[architecture] || architectureTheory.custom;
-  const { training, startTraining, visualization } = useNetworkStore();
-  const [exampleStep, setExampleStep] = useState(0);
-  
-  // Auto-advance example animation
-  useEffect(() => {
-    if (visualization.showDataFlow) {
-      const timer = setInterval(() => {
-        setExampleStep(s => (s + 1) % 5);
-      }, 1500);
-      return () => clearInterval(timer);
-    }
-  }, [visualization.showDataFlow]);
   
   return (
     <motion.div
@@ -678,8 +717,8 @@ function TheoryTab({ architecture }: { architecture: ArchitectureType }) {
         </h4>
         <ul className="space-y-2">
           {theory.keyPoints.map((point, i) => (
-            <li key={i} className="flex items-start gap-2 text-sm text-[var(--text-secondary)]">
-              <span className="text-[var(--accent-primary)] mt-1">•</span>
+            <li key={`point-${i}`} className="flex items-start gap-2 text-sm text-[var(--text-secondary)]">
+              <span className="text-[var(--accent-primary)] mt-0.5">•</span>
               {point}
             </li>
           ))}
@@ -699,33 +738,6 @@ function TheoryTab({ architecture }: { architecture: ArchitectureType }) {
         </section>
       )}
       
-      {/* Real-time Example */}
-      <section>
-        <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-2">
-          Live Example
-        </h4>
-        <div className="rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-color)] overflow-hidden">
-          <ExampleVisualization 
-            type={theory.example.type} 
-            architecture={architecture}
-            step={exampleStep}
-          />
-          <div className="p-3 border-t border-[var(--border-color)]">
-            <p className="text-xs text-[var(--text-muted)]">{theory.example.description}</p>
-          </div>
-        </div>
-        <button
-          onClick={startTraining}
-          disabled={training.isTraining}
-          className="w-full mt-3 py-2 px-4 rounded-lg bg-[var(--accent-primary)] bg-opacity-20 
-                   border border-[var(--accent-primary)] border-opacity-30
-                   text-[var(--accent-primary)] hover:bg-opacity-30 transition-all text-sm
-                   disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {training.isTraining ? 'Training...' : 'Run Example'}
-        </button>
-      </section>
-      
       {/* Use Cases */}
       <section>
         <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-2">
@@ -734,8 +746,8 @@ function TheoryTab({ architecture }: { architecture: ArchitectureType }) {
         <div className="flex flex-wrap gap-2">
           {theory.useCases.map((useCase, i) => (
             <span 
-              key={i}
-              className="px-2 py-1 text-xs rounded bg-[var(--bg-tertiary)] text-[var(--text-secondary)]"
+              key={`usecase-${i}`}
+              className="px-3 py-1.5 text-xs rounded-full bg-[var(--bg-tertiary)] text-[var(--text-primary)] border border-[var(--border-color)]"
             >
               {useCase}
             </span>
@@ -743,236 +755,5 @@ function TheoryTab({ architecture }: { architecture: ArchitectureType }) {
         </div>
       </section>
     </motion.div>
-  );
-}
-
-// Example Visualization Component
-function ExampleVisualization({ type, architecture, step }: { 
-  type: string; 
-  architecture: string;
-  step: number;
-}) {
-  // MNIST digit visualization for CNN
-  if (type === 'mnist') {
-    const digit = [
-      [0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-      [0,0,0,0,0,0,1,1,1,1,0,0,0,0],
-      [0,0,0,0,0,1,1,1,1,1,1,0,0,0],
-      [0,0,0,0,1,1,1,0,0,1,1,0,0,0],
-      [0,0,0,0,1,1,0,0,0,1,1,0,0,0],
-      [0,0,0,0,0,0,0,0,1,1,1,0,0,0],
-      [0,0,0,0,0,0,0,1,1,1,0,0,0,0],
-      [0,0,0,0,0,0,1,1,1,0,0,0,0,0],
-      [0,0,0,0,0,1,1,1,0,0,0,0,0,0],
-      [0,0,0,0,1,1,1,0,0,0,0,0,0,0],
-      [0,0,0,0,1,1,1,1,1,1,1,1,0,0],
-      [0,0,0,0,1,1,1,1,1,1,1,1,0,0],
-      [0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-      [0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    ];
-    
-    return (
-      <div className="p-4">
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-xs text-[var(--text-muted)]">Input: Digit "2"</span>
-          <span className="text-xs text-[var(--accent-secondary)]">→ Prediction: 2 (98.5%)</span>
-        </div>
-        <div className="flex gap-4 items-center">
-          {/* Input digit */}
-          <div className="mnist-digit p-1 rounded" style={{ display: 'grid', gridTemplateColumns: 'repeat(14, 1fr)', gap: '1px' }}>
-            {digit.flat().map((pixel, i) => (
-              <div 
-                key={i}
-                className="w-2 h-2 rounded-sm transition-all duration-300"
-                style={{ 
-                  backgroundColor: pixel ? 'var(--text-primary)' : 'var(--bg-tertiary)',
-                  opacity: step >= 1 ? 1 : 0.3
-                }}
-              />
-            ))}
-          </div>
-          
-          {/* Arrow */}
-          <svg className="w-6 h-6 text-[var(--text-muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-          </svg>
-          
-          {/* Feature maps */}
-          <div className="flex gap-1">
-            {[0,1,2].map(f => (
-              <div key={f} className="w-8 h-8 rounded bg-[var(--accent-primary)]" 
-                   style={{ opacity: step >= 2 ? 0.3 + (f * 0.2) : 0.1 }} />
-            ))}
-          </div>
-          
-          {/* Arrow */}
-          <svg className="w-6 h-6 text-[var(--text-muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-          </svg>
-          
-          {/* Output */}
-          <div className="text-2xl font-bold text-[var(--accent-secondary)]" style={{ opacity: step >= 3 ? 1 : 0.3 }}>
-            2
-          </div>
-        </div>
-      </div>
-    );
-  }
-  
-  // Sentence visualization for Transformer
-  if (type === 'sentence') {
-    const words = ['The', 'cat', 'sat', 'on', 'the', 'mat'];
-    const attentionWeights = [
-      [0.1, 0.3, 0.2, 0.1, 0.1, 0.2],
-      [0.2, 0.1, 0.4, 0.1, 0.1, 0.1],
-      [0.1, 0.5, 0.1, 0.2, 0.05, 0.05],
-      [0.1, 0.1, 0.3, 0.1, 0.2, 0.2],
-      [0.3, 0.1, 0.1, 0.1, 0.1, 0.3],
-      [0.1, 0.1, 0.2, 0.3, 0.1, 0.2],
-    ];
-    
-    return (
-      <div className="p-4">
-        <div className="text-xs text-[var(--text-muted)] mb-3">Self-Attention: Word Relationships</div>
-        <div className="flex gap-2 mb-3">
-          {words.map((word, i) => (
-            <span 
-              key={i}
-              className="px-2 py-1 text-xs rounded transition-all"
-              style={{ 
-                backgroundColor: i === step % words.length 
-                  ? 'var(--accent-primary)' 
-                  : 'var(--bg-tertiary)',
-                color: i === step % words.length 
-                  ? 'white' 
-                  : 'var(--text-secondary)'
-              }}
-            >
-              {word}
-            </span>
-          ))}
-        </div>
-        <div className="attention-matrix" style={{ gridTemplateColumns: `repeat(${words.length}, 1fr)` }}>
-          {attentionWeights.map((row, i) => 
-            row.map((weight, j) => (
-              <div 
-                key={`${i}-${j}`}
-                className="attention-cell w-6 h-6 rounded-sm"
-                style={{ 
-                  backgroundColor: `rgba(59, 130, 246, ${weight})`,
-                  transform: (i === step % words.length || j === step % words.length) ? 'scale(1.1)' : 'scale(1)'
-                }}
-              />
-            ))
-          )}
-        </div>
-        <div className="mt-2 text-xs text-[var(--text-muted)]">
-          Brighter = stronger attention between words
-        </div>
-      </div>
-    );
-  }
-  
-  // XOR visualization
-  if (type === 'xor') {
-    const points = [
-      { x: 0, y: 0, label: 0, color: 'var(--accent-danger)' },
-      { x: 1, y: 0, label: 1, color: 'var(--accent-secondary)' },
-      { x: 0, y: 1, label: 1, color: 'var(--accent-secondary)' },
-      { x: 1, y: 1, label: 0, color: 'var(--accent-danger)' },
-    ];
-    
-    return (
-      <div className="p-4">
-        <div className="text-xs text-[var(--text-muted)] mb-3">XOR Problem: Non-linear Classification</div>
-        <div className="flex items-center gap-4">
-          <div className="relative w-24 h-24 border border-[var(--border-color)] rounded">
-            {points.map((p, i) => (
-              <div
-                key={i}
-                className="absolute w-4 h-4 rounded-full flex items-center justify-center text-xs text-white transition-all"
-                style={{ 
-                  left: `${p.x * 60 + 12}%`, 
-                  top: `${(1-p.y) * 60 + 12}%`,
-                  backgroundColor: p.color,
-                  transform: step === i ? 'scale(1.3)' : 'scale(1)'
-                }}
-              >
-                {p.label}
-              </div>
-            ))}
-            {/* Decision boundary curve */}
-            <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100">
-              <path 
-                d="M 10 90 Q 50 50 90 90 M 10 10 Q 50 50 90 10" 
-                stroke="var(--accent-primary)" 
-                strokeWidth="2" 
-                fill="none"
-                strokeDasharray="4"
-                opacity={step >= 3 ? 0.5 : 0.1}
-              />
-            </svg>
-          </div>
-          <div className="text-xs text-[var(--text-secondary)]">
-            <div>0 XOR 0 = 0</div>
-            <div>0 XOR 1 = 1</div>
-            <div>1 XOR 0 = 1</div>
-            <div>1 XOR 1 = 0</div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-  
-  // GAN noise to image
-  if (type === 'noise') {
-    return (
-      <div className="p-4">
-        <div className="text-xs text-[var(--text-muted)] mb-3">Generator: Random Noise → Image</div>
-        <div className="flex items-center gap-3">
-          {/* Noise */}
-          <div className="w-16 h-16 rounded overflow-hidden" style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)' }}>
-            {Array(64).fill(0).map((_, i) => (
-              <div 
-                key={i}
-                className="transition-all duration-500"
-                style={{ backgroundColor: `hsl(0, 0%, ${Math.random() * 100}%)` }}
-              />
-            ))}
-          </div>
-          <svg className="w-6 h-6 text-[var(--text-muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-          </svg>
-          <div className="text-4xl" style={{ opacity: step >= 2 ? 1 : 0.3 }}>🎨</div>
-          <svg className="w-6 h-6 text-[var(--text-muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-          </svg>
-          <div className="w-16 h-16 rounded bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)]"
-               style={{ opacity: step >= 3 ? 1 : 0.3 }} />
-        </div>
-      </div>
-    );
-  }
-  
-  // Default sequence visualization
-  return (
-    <div className="p-4">
-      <div className="text-xs text-[var(--text-muted)] mb-3">Data Flow Visualization</div>
-      <div className="flex gap-2 items-center">
-        {[0,1,2,3,4].map(i => (
-          <div 
-            key={i}
-            className="w-8 h-8 rounded-full border-2 flex items-center justify-center text-xs transition-all"
-            style={{ 
-              borderColor: i <= step ? 'var(--accent-primary)' : 'var(--border-color)',
-              backgroundColor: i <= step ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
-              color: i <= step ? 'var(--accent-primary)' : 'var(--text-muted)'
-            }}
-          >
-            {i + 1}
-          </div>
-        ))}
-      </div>
-    </div>
   );
 }
