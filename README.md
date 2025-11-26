@@ -1,87 +1,173 @@
 # AI Visualizer - Neural Network Architecture
 
 <div align="center">
-  
+
 ![Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)
 ![Three.js](https://img.shields.io/badge/Three.js-R164-black?style=for-the-badge&logo=three.js)
 ![TailwindCSS](https://img.shields.io/badge/Tailwind-3.4-38B2AC?style=for-the-badge&logo=tailwind-css)
+![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react)
+![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 
-**An interactive 3D educational platform for understanding Deep Learning architectures**
+<h3>Interactive 3D Educational Platform for Understanding Deep Learning Architectures</h3>
 
-[Live Demo](#) | [Documentation](#documentation) | [Features](#features) | [Getting Started](#getting-started)
+<p>
+  <strong>From Perceptrons to Transformers - Visualize, Learn, and Master Neural Networks</strong>
+</p>
 
-**By Nolan Cacheux**
+[Live Demo](https://ai-visualizer-neural-network.vercel.app) | [Features](#features) | [Getting Started](#getting-started) | [Documentation](#documentation)
+
+<br />
+
+**Developed by [Nolan Cacheux](https://github.com/nolancacheux)**
+
+<br />
+
+<img src="https://raw.githubusercontent.com/nolancacheux/AI-Visualizer-Neural-Network-Architecture/main/public/preview.png" alt="AI Visualizer Preview" width="800" />
 
 </div>
 
 ---
 
-## Project Overview
+## About The Project
 
-**AI Visualizer** is a comprehensive web application designed to demystify neural network architectures through interactive 3D visualization. From simple perceptrons to complex transformers, users can explore, configure, and understand the mathematical foundations of deep learning.
+**AI Visualizer** is a comprehensive, production-ready web application that demystifies neural network architectures through immersive 3D visualization and interactive learning experiences. Whether you're a student learning deep learning fundamentals or an engineer exploring architecture designs, this platform provides:
 
-This project serves as:
-- **An Educational Platform**: Learn deep learning concepts visually
-- **A Laboratory**: Experiment with different architectures in real-time
-- **A Code Generator**: See TensorFlow/Keras code update as you build
-- **A Mathematical Reference**: Explore formulas with LaTeX rendering
+- **Visual Learning**: See how data flows through neural networks in real-time 3D
+- **Interactive Laboratory**: Build and experiment with different architectures
+- **Code Generation**: Watch TensorFlow/Keras code update as you modify networks
+- **Mathematical Depth**: Explore formulas with LaTeX rendering and step-by-step explanations
+
+### Why This Project?
+
+Traditional deep learning education relies heavily on static diagrams and abstract mathematics. AI Visualizer bridges this gap by providing:
+
+1. **Spatial Understanding**: 3D visualization helps grasp network topology and data flow
+2. **Instant Feedback**: Changes reflect immediately in visualization and code
+3. **Complete Theory**: Comprehensive explanations with mathematical foundations
+4. **Real Examples**: Live demonstrations of AND/OR/XOR gates, MNIST, attention mechanisms
+
+---
 
 ## Features
 
-### Interactive 3D Visualization
-- **Real-time 3D rendering** of neural network architectures using React Three Fiber
-- **Data flow animation** showing how information propagates through layers
-- **Gradient visualization** for understanding backpropagation
-- **Dynamic camera controls** - orbit, zoom, and pan
+### 3D Neural Network Visualization
+
+<table>
+<tr>
+<td width="50%">
+
+**Real-Time Rendering**
+- Fully interactive 3D scene with orbit controls
+- Animated data flow through neurons
+- Gradient visualization for backpropagation
+- Dynamic layer scaling and positioning
+
+</td>
+<td width="50%">
+
+**Visual Feedback**
+- Color-coded layer types
+- Pulsing neurons showing activity
+- Connection lines with animated particles
+- Selection highlighting
+
+</td>
+</tr>
+</table>
+
+### Supported Architectures
+
+| Architecture | Description | Use Cases |
+|-------------|-------------|-----------|
+| **Perceptron** | Single-layer linear classifier | AND/OR gates, linear separation |
+| **MLP** | Multi-layer feedforward network | XOR problem, classification |
+| **CNN** | Convolutional neural network | Image recognition, MNIST |
+| **RNN/LSTM** | Recurrent architectures | Sequence processing, NLP |
+| **Transformer** | Attention-based architecture | Translation, GPT-style models |
+| **GAN** | Generative adversarial network | Image generation |
+| **Autoencoder** | Encoder-decoder network | Compression, denoising |
 
 ### Architecture Builder
-- **Pre-built templates**: Perceptron, MLP, CNN, RNN/LSTM, Transformer, GAN, Autoencoder
-- **Layer-by-layer construction**: Add Dense, Conv2D, MaxPool, Dropout, BatchNorm, LSTM, Attention
-- **Real-time parameter adjustment**: Modify units, filters, activation functions
-- **Drag-and-drop reordering**: Rearrange layers with ease
+
+```
+Add layers dynamically:
+  - Dense (Fully Connected)
+  - Conv2D (Convolutional)
+  - MaxPool2D (Pooling)
+  - Flatten
+  - Dropout (Regularization)
+  - BatchNorm (Normalization)
+  - LSTM (Recurrent)
+  - Attention (Transformer)
+```
+
+- **Drag-and-drop reordering** of layers
+- **Real-time parameter adjustment** (units, filters, activation)
+- **Layer info panels** with detailed explanations
 
 ### Live Code Generation
+
+The right panel displays TensorFlow/Keras code that updates in real-time:
+
 ```python
-# Code updates automatically as you modify the architecture
+import tensorflow as tf
+from tensorflow.keras import layers, models
+
 model = models.Sequential([
-    layers.Dense(64, activation='relu'),
-    layers.Dropout(0.5),
-    layers.Dense(10, activation='softmax')
+    layers.Input(shape=(2,)),
+    layers.Dense(3, activation='relu'),
+    layers.Dense(1, activation='sigmoid')
 ])
+
+model.compile(
+    optimizer='adam',
+    loss='binary_crossentropy',
+    metrics=['accuracy']
+)
 ```
 
 ### Mathematical Foundations
-- **LaTeX-rendered formulas** for every concept
-- **Activation functions**: ReLU, Sigmoid, Softmax, ELU, Tanh
-- **Loss functions**: Cross-Entropy, MSE
-- **Optimizers**: Adam, SGD, Momentum
+
+Every concept includes LaTeX-rendered formulas:
+
+- **Activation Functions**: ReLU, Sigmoid, Softmax, Tanh, ELU
+- **Loss Functions**: Cross-Entropy, MSE, Binary Cross-Entropy
+- **Optimizers**: Adam, SGD, SGD with Momentum
+- **Backpropagation**: Complete gradient derivations
 
 ### Live Architecture Guide
-Interactive bottom panel showing:
-- Complete architecture diagrams for each neural network type
-- Layer-by-layer explanations with roles and formulas
-- AND/OR/XOR decision boundary visualizations
-- Real-time step-by-step animation
+
+Interactive overlay panel featuring:
+
+- **Layer-by-layer explanations** with Input/Role/Output/Formula
+- **Visual demonstrations**: AND/OR/XOR decision boundaries with curved lines
+- **Step-by-step animations** showing forward pass
+- **Training process explanations**: Forward pass, Backpropagation, Training loop
+
+---
 
 ## Tech Stack
 
-| Technology | Purpose |
-|------------|---------|
-| **Next.js 14** | React framework with App Router |
-| **TypeScript** | Type-safe development |
-| **React Three Fiber** | Declarative 3D graphics |
-| **Three.js + Drei** | 3D rendering and helpers |
-| **Zustand** | Global state management |
-| **Framer Motion** | Smooth UI animations |
-| **KaTeX** | Mathematical formula rendering |
-| **Tailwind CSS** | Utility-first styling |
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| **Next.js** | 14 | React framework with App Router |
+| **TypeScript** | 5.0 | Type-safe development |
+| **React Three Fiber** | 8.x | Declarative 3D graphics |
+| **Three.js + Drei** | R164 | 3D rendering engine and helpers |
+| **Zustand** | 4.x | Lightweight state management |
+| **Framer Motion** | 11.x | Smooth animations |
+| **KaTeX** | 0.16 | Mathematical typesetting |
+| **Tailwind CSS** | 3.4 | Utility-first CSS |
+
+---
 
 ## Getting Started
 
 ### Prerequisites
-- Node.js 18+ 
-- npm or yarn
+
+- **Node.js** 18.0 or higher
+- **npm** or **yarn** package manager
 
 ### Installation
 
@@ -99,94 +185,132 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to view the application.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-### Build for Production
+### Production Build
 
 ```bash
-# Create optimized production build
+# Create optimized build
 npm run build
 
 # Start production server
 npm start
 ```
 
+### Deploy to Vercel
+
+```bash
+# Install Vercel CLI
+npm i -g vercel
+
+# Deploy
+vercel --prod
+```
+
+---
+
 ## Project Structure
 
 ```
-src/
-├── app/                    # Next.js App Router
-│   ├── layout.tsx         # Root layout
-│   ├── page.tsx           # Main page
-│   └── globals.css        # Global styles
-├── components/
-│   ├── 3d/                # Three.js components
-│   │   ├── NeuronNode.tsx      # Individual neuron visualization
-│   │   ├── NetworkConnection.tsx # Connection lines and data flow
-│   │   └── NetworkVisualization.tsx # Main 3D scene
-│   ├── ui/                # UI components
-│   │   ├── LeftSidebar.tsx     # Architecture selector
-│   │   ├── RightPanel.tsx      # Parameters and code panel
-│   │   ├── LiveExampleBar.tsx  # Architecture guide
-│   │   ├── CodeBlock.tsx       # Syntax-highlighted code
-│   │   └── MathBlock.tsx       # LaTeX math rendering
-│   └── NeuralNetworkVisualizer.tsx # Main orchestrator
-├── data/
-│   └── curriculum.ts      # All educational content
-├── engine/
-│   └── tensorflowSimulator.ts # Mock TF calculations
-└── store/
-    └── networkStore.ts    # Zustand global state
+AI-Visualizer-Neural-Network-Architecture/
+├── src/
+│   ├── app/                          # Next.js App Router
+│   │   ├── layout.tsx               # Root layout with fonts
+│   │   ├── page.tsx                 # Main entry point
+│   │   └── globals.css              # Global styles & CSS variables
+│   │
+│   ├── components/
+│   │   ├── 3d/                      # Three.js components
+│   │   │   ├── NeuronNode.tsx       # Neuron sphere visualization
+│   │   │   ├── NetworkConnection.tsx # Animated connections
+│   │   │   └── NetworkVisualization.tsx # Main 3D canvas
+│   │   │
+│   │   ├── ui/                      # Interface components
+│   │   │   ├── LeftSidebar.tsx      # Architecture & layer selector
+│   │   │   ├── RightPanel.tsx       # Parameters, code, theory tabs
+│   │   │   ├── LiveExampleBar.tsx   # Interactive architecture guide
+│   │   │   ├── CodeBlock.tsx        # Syntax-highlighted code
+│   │   │   └── MathBlock.tsx        # KaTeX math rendering
+│   │   │
+│   │   └── NeuralNetworkVisualizer.tsx # Main orchestrator
+│   │
+│   ├── data/
+│   │   └── curriculum.ts            # Complete educational content
+│   │
+│   ├── engine/
+│   │   └── tensorflowSimulator.ts   # TF calculation simulation
+│   │
+│   └── store/
+│       └── networkStore.ts          # Zustand global state
+│
+├── public/                          # Static assets
+├── package.json                     # Dependencies
+├── tailwind.config.js              # Tailwind configuration
+├── tsconfig.json                   # TypeScript configuration
+└── next.config.js                  # Next.js configuration
 ```
+
+---
 
 ## Keyboard Shortcuts
 
 | Shortcut | Action |
 |----------|--------|
-| `Cmd/Ctrl + 1` | Toggle left sidebar |
-| `Cmd/Ctrl + 2` | Toggle right panel |
-| `Cmd/Ctrl + D` | Toggle data flow |
-| `Cmd/Ctrl + W` | Toggle weights |
-| `Cmd/Ctrl + G` | Toggle gradients |
+| `Ctrl/Cmd + 1` | Toggle left sidebar |
+| `Ctrl/Cmd + 2` | Toggle right panel |
+| `Ctrl/Cmd + D` | Toggle data flow visualization |
+| `Ctrl/Cmd + W` | Toggle weight display |
+| `Ctrl/Cmd + G` | Toggle gradient visualization |
+| `Space` | Start/stop training animation |
+
+---
 
 ## Documentation
 
-### Adding New Layer Types
+### Adding New Architectures
 
-1. Add layer definition in `src/data/curriculum.ts`:
+1. Define template in `src/data/curriculum.ts`:
+
 ```typescript
-export const layers: LayerDefinition[] = [
+export const architectureTemplates: ArchitectureTemplate[] = [
   {
-    id: 'new-layer',
-    name: 'NewLayer',
-    type: 'new-layer',
-    description: 'Description here',
-    parameters: [...],
-    // ...
+    id: 'new-architecture',
+    name: 'New Architecture',
+    description: 'Description of the architecture',
+    difficulty: 'intermediate',
+    useCase: 'Use case description',
+    layers: [
+      { type: 'input', params: { shape: [784] } },
+      { type: 'dense', params: { units: 128, activation: 'relu' } },
+      { type: 'dense', params: { units: 10, activation: 'softmax' } }
+    ]
   }
 ];
 ```
 
-2. Update store in `src/store/networkStore.ts`
-3. Add visualization in `src/components/3d/NetworkVisualization.tsx`
+2. Add visualization logic in `NetworkVisualization.tsx`
+3. Add live example in `LiveExampleBar.tsx`
 
 ### Adding Educational Content
 
-All curriculum content is centralized in `src/data/curriculum.ts`:
+All curriculum content is centralized for easy maintenance:
 
 ```typescript
-export const activationFunctions: ConceptDefinition[] = [
-  {
-    id: 'your-concept',
-    name: 'Concept Name',
-    formulas: [{
-      latex: '\\frac{1}{1+e^{-x}}',
-      description: 'Formula description'
-    }],
-    // ...
+// src/data/curriculum.ts
+export const conceptDefinitions = {
+  activation: {
+    relu: {
+      name: 'ReLU',
+      formula: 'f(x) = max(0, x)',
+      description: 'Most common activation for hidden layers...',
+      advantages: ['Solves vanishing gradient', 'Computationally efficient'],
+      disadvantages: ['Dead neurons possible']
+    }
   }
-];
+};
 ```
+
+---
 
 ## Design System
 
@@ -194,49 +318,97 @@ export const activationFunctions: ConceptDefinition[] = [
 
 | Color | Hex | Usage |
 |-------|-----|-------|
-| Background | `#0f1117` | Main background |
-| Surface | `#1a1d27` | Cards and panels |
-| Primary | `#3b82f6` | Primary accent |
-| Secondary | `#8b5cf6` | Secondary accent |
-| Success | `#22c55e` | Success states |
-| Warning | `#f59e0b` | Warning states |
-| Error | `#ef4444` | Error states |
+| Background | `#0f1117` | Main app background |
+| Surface | `#1a1d27` | Cards, panels, overlays |
+| Border | `#2a2d3a` | Subtle borders |
+| Primary | `#3b82f6` | Primary actions, links |
+| Secondary | `#8b5cf6` | Secondary elements |
+| Accent | `#00d4ff` | Highlights, data flow |
+| Success | `#22c55e` | Success states, valid |
+| Warning | `#f59e0b` | Warnings, attention |
+| Error | `#ef4444` | Errors, destructive |
 
 ### Typography
 
-- **Display**: Orbitron (headers)
-- **Body**: Exo 2 (content)
-- **Mono**: JetBrains Mono (code)
+| Font | Usage |
+|------|-------|
+| **Orbitron** | Headers, titles |
+| **Exo 2** | Body text, descriptions |
+| **JetBrains Mono** | Code blocks, formulas |
+
+---
+
+## Performance
+
+- **Optimized 3D rendering** with instanced meshes
+- **Lazy loading** for heavy components
+- **Memoized calculations** for layer positions
+- **Efficient state updates** with Zustand
+- **CSS variables** for theme consistency
+
+---
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Here's how you can help:
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+1. **Fork** the repository
+2. **Create** your feature branch (`git checkout -b feature/AmazingFeature`)
+3. **Commit** your changes (`git commit -m 'Add AmazingFeature'`)
+4. **Push** to the branch (`git push origin feature/AmazingFeature`)
+5. **Open** a Pull Request
+
+### Development Guidelines
+
+- Follow TypeScript best practices
+- Use meaningful component and variable names
+- Add JSDoc comments for complex functions
+- Ensure responsive design
+- Test across different browsers
+
+---
+
+## Roadmap
+
+- [ ] Add more architecture templates (ResNet, U-Net, BERT)
+- [ ] Implement actual training with TensorFlow.js
+- [ ] Add dataset visualization (MNIST, CIFAR-10)
+- [ ] Create shareable architecture links
+- [ ] Add collaborative editing features
+- [ ] Mobile-responsive improvements
+
+---
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Distributed under the MIT License. See `LICENSE` for more information.
+
+---
 
 ## Acknowledgments
 
-- Inspired by TensorFlow Playground and NN-SVG
-- Educational content based on Deep Learning fundamentals
-- 3D visualization powered by the Three.js ecosystem
+- Inspired by [TensorFlow Playground](https://playground.tensorflow.org/)
+- 3D visualization powered by [Three.js](https://threejs.org/) ecosystem
+- UI components styled with [Tailwind CSS](https://tailwindcss.com/)
+- Mathematical rendering by [KaTeX](https://katex.org/)
 
 ---
 
 <div align="center">
 
-**Built by Nolan Cacheux**
+### Built with passion by [Nolan Cacheux](https://github.com/nolancacheux)
 
-*ML Engineer Portfolio Project - Full Stack + Deep Learning*
+**ML Engineer Portfolio Project**
 
-[GitHub](https://github.com/nolancacheux)
+*Demonstrating Full-Stack Development + Deep Learning Expertise*
+
+<br />
+
+[![GitHub](https://img.shields.io/badge/GitHub-nolancacheux-181717?style=for-the-badge&logo=github)](https://github.com/nolancacheux)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/nolancacheux)
+
+<br />
+
+If you found this project helpful, please consider giving it a star!
 
 </div>
-
