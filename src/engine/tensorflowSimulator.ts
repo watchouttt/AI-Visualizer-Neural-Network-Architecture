@@ -256,8 +256,14 @@ export function simulateForwardPass(
         const bias = (Math.random() - 0.5) * 0.5;
         
         const weightedSum = currentValues.reduce((sum, val, j) => sum + val * weights[j], 0) + bias;
-        const activationFn = activationFunctions[activation as keyof typeof activationFunctions] || activationFunctions.relu;
-        const output = activationFn(weightedSum);
+        // Apply activation function (exclude softmax which requires array input)
+        let output: number;
+        if (activation === 'softmax') {
+          output = activationFunctions.sigmoid(weightedSum);
+        } else {
+          const activationFn = activationFunctions[activation as keyof typeof activationFunctions] as (x: number) => number;
+          output = activationFn ? activationFn(weightedSum) : activationFunctions.relu(weightedSum);
+        }
         
         layerNeurons.push({
           id: `layer${layerIndex + 1}_${i}`,
